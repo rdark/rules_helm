@@ -2,6 +2,12 @@
 
 load(":providers.bzl", "HelmPackageInfo")
 
+# The interface of `helm_oci_parts` that `helm_oci_manifest` in the separate
+# `rules_helm_img` module relies on: its attributes and outputs. A change that
+# would break that macro must increase this number, so that an older
+# `rules_helm_img` fails with a clear message.
+HELM_OCI_PARTS_API = 1
+
 def _helm_oci_parts_impl(ctx):
     if ctx.attr.registry_url and ctx.attr.registry_url_file:
         fail("`registry_url` and `registry_url_file` are mutually exclusive. Only one may be specified for target `{}`.".format(ctx.label))

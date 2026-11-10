@@ -148,10 +148,10 @@ stardoc(
 stardoc(
     name = "rules_img",
     out = "src/rules_img.md",
-    input = "//helm:rules_img.bzl",
+    input = "@rules_helm_img//:defs.bzl",
     table_of_contents_template = "@stardoc//stardoc:templates/markdown_tables/table_of_contents.vm",
     tags = ["manual"],
-    deps = ["//helm:rules_img_bzl"],
+    deps = ["@rules_helm_img//:defs_bzl"],
 )
 
 stardoc(

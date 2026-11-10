@@ -34,6 +34,21 @@ if [[ "${ON_DISK_VERSION}" != "${TAG}" ]]; then
     exit 1
 fi
 
+# modules/rules_helm_img is published from this archive with the same version.
+# Fail if its own version, or its pin of rules_helm, is not the tag: the
+# published module would otherwise depend on a different rules_helm.
+IMG_MODULE_FILE="${WORKSPACE}/modules/rules_helm_img/MODULE.bazel"
+IMG_MODULE_VERSION="$(tr -d '\r' < "${IMG_MODULE_FILE}" | sed -n '/^module(/,/^)/s/^ *version = "\([^"]*\)".*$/\1/p')"
+IMG_MODULE_PIN="$(tr -d '\r' < "${IMG_MODULE_FILE}" | sed -n 's/^bazel_dep(name = "rules_helm", version = "\([^"]*\)".*$/\1/p')"
+if [[ -z "${IMG_MODULE_VERSION}" || -z "${IMG_MODULE_PIN}" ]]; then
+    echo "ERROR: could not read the module version ('${IMG_MODULE_VERSION}') or the rules_helm dependency version ('${IMG_MODULE_PIN}') from ${IMG_MODULE_FILE}"
+    exit 1
+fi
+if [[ "${IMG_MODULE_VERSION}" != "${TAG}" || "${IMG_MODULE_PIN}" != "${TAG}" ]]; then
+    echo "ERROR: ${IMG_MODULE_FILE} has version='${IMG_MODULE_VERSION}' and rules_helm pin='${IMG_MODULE_PIN}', expected both to be ${TAG}"
+    exit 1
+fi
+
 # Build the source archive. Exclude .git (history isn't needed by
 # consumers), .github (release infrastructure isn't part of the
 # ruleset), examples (kept out to reduce archive size — matches

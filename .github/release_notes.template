@@ -9,4 +9,8 @@ http_archive(
 )
 ```
 
+`rules_helm_img`, which adds `helm_oci_manifest` for `rules_img`, is an optional module in this archive for
+Bzlmod only. Use the same version as `rules_helm`. With `archive_override`, set
+`strip_prefix = "modules/rules_helm_img"`.
+
 Additional documentation can be found at: https://github.com/periareon/rules_helm

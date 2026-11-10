@@ -13,6 +13,20 @@ Bazel rules for producing [helm charts][helm]
 bazel_dep(name = "rules_helm", version = "{version}")
 ```
 
+### Optional module: `rules_helm_img`
+
+[`helm_oci_manifest`](./rules_img.md) lets the `multi_deploy` rule of
+[rules_img](https://github.com/bazel-contrib/rules_img) push a chart. It is in a separate module, so
+`rules_helm` does not depend on `rules_img`. Add the module only if you use it, with the same version
+as `rules_helm`:
+
+```python
+bazel_dep(name = "rules_helm_img", version = "{version}")
+```
+
+`rules_helm_img` supports Bzlmod only. To use it from the release archive with `archive_override`,
+set `strip_prefix = "modules/rules_helm_img"`.
+
 ## Run as a tool
 
 ```bash

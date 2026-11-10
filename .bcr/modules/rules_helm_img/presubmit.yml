@@ -1,0 +1,14 @@
+---
+bcr_test_module:
+  module_path: "."
+  matrix:
+    # rules_img's image_manifest is not built on Windows by this repository's tests.
+    platform: ["macos_arm64", "ubuntu2004"]
+    bazel: ["7.x", "8.x"]
+  tasks:
+    run_tests:
+      name: "Build the module and its smoke target"
+      platform: ${{ platform }}
+      bazel: ${{ bazel }}
+      build_targets:
+        - "//..."

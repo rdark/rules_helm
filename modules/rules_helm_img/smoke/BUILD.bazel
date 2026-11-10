@@ -1,0 +1,32 @@
+load("@rules_helm//helm:defs.bzl", "helm_chart")
+load("//:defs.bzl", "helm_oci_manifest")
+
+# Built by the BCR presubmit, so that a published `rules_helm_img` is loaded and
+# analysed against the published `rules_helm` and `rules_img`, and by
+# `//tests/helm_oci_manifest:rules_helm_img_smoke_build_test` in `rules_helm`. The
+# tests that check the pushed bytes are in that package.
+
+helm_chart(
+    name = "chart",
+    chart_json = json.encode({
+        "apiVersion": "v2",
+        "name": "smoke",
+        "version": "0.1.0",
+    }),
+    # The chart has no templates, which Helm 4 lint rejects.
+    tags = ["no-helm-lint"],
+    values_json = json.encode({}),
+)
+
+helm_oci_manifest(
+    name = "chart_oci_manifest",
+    chart = ":chart",
+    registry_url = "oci://registry.example.com/charts",
+    target_compatible_with = select({
+        # As in //tests/helm_oci_manifest in rules_helm.
+        "@platforms//os:windows": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    # Public for that build test.
+    visibility = ["//visibility:public"],
+)

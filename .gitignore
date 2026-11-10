@@ -4,6 +4,10 @@
 /bazel-*
 user.bazelrc
 
+# Building a module in `modules/` as its own root writes these there.
+/modules/*/bazel-*
+/modules/*/MODULE.bazel.lock
+
 # Helm
 # Dependency charts are not checked in and are instead handled by Bazel.
 **/charts/**

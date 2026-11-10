@@ -1,12 +1,25 @@
 """# rules_img integration.
 
-Rules that build on [rules_img](https://github.com/bazel-contrib/rules_img).
+Rules that build on [rules_img](https://github.com/bazel-contrib/rules_img). They are in the
+`rules_helm_img` module, so a workspace that does not use them does not depend on `rules_img`.
+
+```python
+bazel_dep(name = "rules_helm", version = "{version}")
+bazel_dep(name = "rules_helm_img", version = "{version}")
+```
+
+Use the same version of both modules, because `rules_helm_img` uses a private rule of `rules_helm`.
 """
 
+# Private to `rules_helm`, but released with this module. `helm_oci_manifest` checks `HELM_OCI_PARTS_API`.
+# buildifier: disable=bzl-visibility
+load("@rules_helm//helm/private:oci_parts.bzl", "HELM_OCI_PARTS_API", "helm_oci_parts")
 load("@rules_img//img:image.bzl", "image_manifest")
 load("@rules_img//img:layer.bzl", "layer_from_file")
 load("@rules_img//img:push.bzl", "image_push_spec")
-load("//helm/private:oci_parts.bzl", "helm_oci_parts")
+
+# The version of `helm_oci_parts` that this file is written for.
+_HELM_OCI_PARTS_API = 1
 
 _HELM_CHART_MEDIA_TYPE = "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
 _HELM_CONFIG_MEDIA_TYPE = "application/vnd.cncf.helm.config.v1+json"
@@ -27,7 +40,7 @@ def helm_oci_manifest(
     `helm push` would. Only the chart is pushed; push its images with their own targets.
 
     ```python
-    load("@rules_helm//helm:rules_img.bzl", "helm_oci_manifest")
+    load("@rules_helm_img//:defs.bzl", "helm_oci_manifest")
     load("@rules_img//img:multi_deploy.bzl", "multi_deploy")
 
     helm_oci_manifest(
@@ -73,6 +86,9 @@ def helm_oci_manifest(
         **kwargs (dict): Common attributes such as `tags`, `target_compatible_with` and
             `testonly`, applied to every target.
     """
+    if HELM_OCI_PARTS_API != _HELM_OCI_PARTS_API:
+        fail("This `rules_helm_img` uses version {} of the `helm_oci_parts` interface of `rules_helm`, but the `rules_helm` in use has version {}. Use the same version of `rules_helm` and `rules_helm_img`.".format(_HELM_OCI_PARTS_API, HELM_OCI_PARTS_API))
+
     helm_oci_parts(
         name = name + ".oci_parts",
         chart = chart,
