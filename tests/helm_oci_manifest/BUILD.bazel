@@ -1,8 +1,9 @@
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@rules_go//go:def.bzl", "go_test")
+load("@rules_helm_img//:defs.bzl", "helm_oci_manifest")
 load("@rules_img//img:multi_deploy.bzl", "multi_deploy")
 load("//helm:defs.bzl", "helm_chart")
-load("//helm:rules_img.bzl", "helm_oci_manifest")
 
 EXCLUDE_WINDOWS = select({
     # As in //tests/with_image_deps_img.
@@ -116,6 +117,15 @@ multi_deploy(
     name = "deploy_url_file",
     operations = [":simple.oci_manifest_url_file"],
     target_compatible_with = EXCLUDE_WINDOWS,
+)
+
+# `//...` does not include `rules_helm_img`'s own packages, so this builds the
+# target that its BCR presubmit builds, using only the dependencies that the
+# module declares.
+build_test(
+    name = "rules_helm_img_smoke_build_test",
+    target_compatible_with = EXCLUDE_WINDOWS,
+    targets = ["@rules_helm_img//smoke:chart_oci_manifest"],
 )
 
 # The `simple.helm_push_*.golden` files are what a real `helm push` of

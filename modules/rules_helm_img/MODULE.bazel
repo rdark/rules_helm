@@ -1,0 +1,15 @@
+"""rules_helm_img: rules that build on both rules_helm and rules_img.
+
+This is a separate module so that `rules_helm` does not depend on `rules_img`.
+It is released from the same tag as `rules_helm` with the same version.
+"""
+
+module(
+    name = "rules_helm_img",
+    version = "0.34.0",
+)
+
+bazel_dep(name = "bazel_skylib", version = "1.9.2")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "rules_helm", version = "0.34.0")
+bazel_dep(name = "rules_img", version = "0.3.24")
